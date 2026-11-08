@@ -2,14 +2,10 @@ import streamlit as st
 import time
 from pathlib import Path
 
-# =====================================================
-#  EDIT THESE
-# =====================================================
+st.set_page_config(page_title="For Rein ❤️", page_icon="💗", layout="wide", initial_sidebar_state="collapsed")
+
 her_name = "Rein"
 your_name = "Uroosa Khan"
-secret_phrase = "i love u rein"   # keep this all lowercase (typing is not case sensitive)
-
-st.set_page_config(page_title="For Rein 🌹", page_icon="🌹", layout="wide", initial_sidebar_state="collapsed")
 
 BASE_DIR = Path(__file__).parent
 PHOTO_DIR = BASE_DIR / "assets" / "photos"
@@ -17,217 +13,122 @@ VIDEO_DIR = BASE_DIR / "assets" / "videos"
 MUSIC_DIR = BASE_DIR / "assets" / "music"
 SECRET_DIR = BASE_DIR / "assets" / "secret"
 
-
-def list_real_files(folder, exts=None):
+def list_real_files(folder):
     if not folder.exists():
         return []
-    files = [f for f in folder.glob("*") if f.is_file() and not f.name.startswith(".")]
-    if exts:
-        files = [f for f in files if f.suffix.lower() in exts]
-    return sorted(files)
+    return sorted(f for f in folder.glob("*") if f.is_file() and not f.name.startswith("."))
 
-
-photos = list_real_files(PHOTO_DIR, {".jpg", ".jpeg", ".png", ".webp", ".gif"})
-videos = list_real_files(VIDEO_DIR, {".mp4", ".mov", ".webm", ".m4v"})
-secret_videos = list_real_files(SECRET_DIR, {".mp4", ".mov", ".webm", ".m4v"})
-music_files = list_real_files(MUSIC_DIR, {".mp3", ".mpeg", ".wav", ".m4a", ".ogg"})
+photos = list_real_files(PHOTO_DIR)
+videos = list_real_files(VIDEO_DIR)
+music_files = list_real_files(MUSIC_DIR)
 music_file = music_files[0] if music_files else None
 
-# =====================================================
-#  STYLE
-# =====================================================
+secret_videos = list_real_files(SECRET_DIR)
+
+# ================= CSS =================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap');
-
-html, body, [class*="css"], .stApp { font-family: 'Jost', sans-serif; }
-
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap');
+* { font-family: 'Poppins', sans-serif; }
 .stApp {
-  background:
-    radial-gradient(circle at 15% 10%, rgba(214,69,110,.28), transparent 35%),
-    radial-gradient(circle at 85% 90%, rgba(150,40,90,.35), transparent 40%),
-    linear-gradient(160deg, #1b0a17 0%, #2c0f24 45%, #3d1230 100%);
-  background-attachment: fixed;
+background: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.3), transparent 20%),
+radial-gradient(circle at 90% 80%, rgba(255,255,255,0.25), transparent 25%),
+linear-gradient(-45deg, #ff758c, #ff7eb3, #ff9a9e, #fad0c4, #fbc2eb);
+background-size: 200% 200%;
+animation: bgMove 15s ease infinite;
 }
-#MainMenu, footer, header { visibility: hidden; }
-.block-container { max-width: 1050px; padding-top: 2rem; padding-bottom: 5rem; }
-
-/* Hero */
-.hero-title {
-  font-family: 'Great Vibes', cursive;
-  font-size: clamp(64px, 11vw, 140px);
-  text-align: center; color: #ffe9ef; line-height: 1.05;
-  text-shadow: 0 0 30px rgba(255,100,150,.55);
-  margin-top: 30px;
-}
-.hero-sub {
-  font-family: 'Cormorant Garamond', serif; font-style: italic;
-  text-align: center; color: #f6c6d4; font-size: clamp(20px, 2.6vw, 28px);
-  margin: 6px 0 30px 0;
-}
-
-/* Sections */
-.section-title {
-  font-family: 'Great Vibes', cursive; color: #ffd3df; text-align: center;
-  font-size: 58px; margin: 70px 0 20px; text-shadow: 0 0 20px rgba(255,100,150,.35);
-}
-.glass {
-  background: rgba(255,255,255,.07); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,190,210,.22); border-radius: 22px;
-  padding: 34px 38px; margin: 20px 0; box-shadow: 0 18px 50px rgba(0,0,0,.35);
-}
-.prose {
-  font-family: 'Cormorant Garamond', serif; color: #ffeaf0;
-  font-size: 23px; line-height: 1.85; text-align: center;
-}
-.poem {
-  font-family: 'Cormorant Garamond', serif; font-style: italic; color: #ffeaf0;
-  font-size: 24px; line-height: 1.9; text-align: center; white-space: pre-line;
-}
-.poem-title {
-  font-family: 'Great Vibes', cursive; color: #ff9fba; text-align: center; font-size: 40px; margin-bottom: 8px;
-}
-.letter {
-  font-family: 'Cormorant Garamond', serif; color: #ffeaf0; font-size: 23px;
-  line-height: 1.9; white-space: pre-line;
-}
-.reason {
-  font-family: 'Cormorant Garamond', serif; color: #ffeaf0; font-size: 24px; line-height: 1.6;
-}
-.reason i { color: #ff8fb0; font-style: normal; font-family: 'Great Vibes', cursive; font-size: 34px; margin-right: 10px; }
-.caption { color: #f6c6d4; text-align: center; font-size: 15px; margin-top: 8px; font-style: italic; }
-
-/* Buttons */
-.stButton>button {
-  width: 100%; border: none; border-radius: 50px; padding: 14px 26px;
-  background: linear-gradient(90deg, #c2185b, #e0457b, #f06292); color: #fff;
-  font-size: 17px; font-weight: 500; letter-spacing: .3px;
-  box-shadow: 0 10px 28px rgba(224,69,123,.4); transition: .3s;
-}
-.stButton>button:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(224,69,123,.6); color:#fff; }
-
-/* Media */
-.stImage img { border-radius: 18px !important; box-shadow: 0 14px 34px rgba(0,0,0,.45); max-height: 340px; object-fit: cover; transition: transform .4s ease; }
+@keyframes bgMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+#MainMenu, footer { visibility: hidden; }
+.block-container { max-width: 1100px; padding-top: 2rem; padding-bottom: 4rem; }
+.hero-title { font-family:'Dancing Script',cursive; font-size:clamp(50px,8vw,100px); font-weight:700; color:white; text-align:center; text-shadow:0 0 10px rgba(255,255,255,.5),0 0 25px rgba(255,80,130,.7),0 5px 20px rgba(0,0,0,.2); }
+.hero-subtitle { text-align:center; color:white; font-size:19px; margin-bottom:30px; }
+.glass-card { background:rgba(255,255,255,.2); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.35); border-radius:26px; padding:32px; margin:22px 0; box-shadow:0 15px 40px rgba(0,0,0,.15); }
+.section-title { font-family:'Dancing Script',cursive; color:white; text-align:center; font-size:50px; margin-top:60px; margin-bottom:25px; text-shadow:0 4px 15px rgba(0,0,0,.2); }
+.stButton>button { width:100%; border:none; border-radius:50px; padding:14px 25px; background:linear-gradient(90deg,#ff416c,#ff4b8b,#ff758c); color:white; font-size:17px; font-weight:600; box-shadow:0 10px 25px rgba(255,65,108,.35); transition:.3s; }
+.stButton>button:hover { transform:translateY(-4px) scale(1.02); box-shadow:0 15px 35px rgba(255,65,108,.5); }
+.stImage img { border-radius:20px !important; box-shadow:0 12px 30px rgba(0,0,0,.25); transition: transform .35s ease; max-height: 320px; object-fit: cover; }
 .stImage img:hover { transform: scale(1.03); }
-video { border-radius: 18px !important; box-shadow: 0 14px 34px rgba(0,0,0,.45); max-height: 420px; }
-
-/* Input */
-.stTextInput input { border-radius: 40px; text-align: center; background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,190,210,.4); }
-.stTextInput label p { color: #ffd3df; }
-
-/* Final */
-.final { text-align: center; color: #ffe9ef; padding: 50px 10px; }
-.final h1 { font-family: 'Great Vibes', cursive; font-size: clamp(50px, 8vw, 90px); text-shadow: 0 0 30px rgba(255,100,150,.6); }
-.final p { font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.8; }
-
-/* Floating petals */
-.petal { position: fixed; bottom: -80px; z-index: 0; pointer-events: none; animation: rise linear infinite; }
-@keyframes rise {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  10% { opacity: .75; }
-  90% { opacity: .75; }
-  100% { transform: translateY(-120vh) rotate(300deg); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) { .petal { display: none; } }
+video { border-radius:20px !important; box-shadow:0 12px 30px rgba(0,0,0,.25); max-height: 400px; }
+.memory-caption { color:white; text-align:center; font-size:15px; margin-top:8px; opacity:.9; }
+.letter { color:white; font-size:19px; line-height:1.9; white-space:pre-line; }
+.poem-text { color:white; text-align:center; font-size:19px; line-height:1.9; white-space:pre-line; }
+.final-message { text-align:center; color:white; padding:60px 20px; }
+.final-message h1 { font-family:'Dancing Script',cursive; font-size:70px; }
+.final-message p { font-size:20px; }
+.heart { position:fixed; bottom:-80px; z-index:0; pointer-events:none; animation:floatHeart linear infinite; }
+@keyframes floatHeart { 0%{transform:translateY(0) rotate(0deg); opacity:0} 10%{opacity:.8} 90%{opacity:.8} 100%{transform:translateY(-120vh) rotate(360deg); opacity:0} }
 </style>
-<div class="petal" style="left:6%;animation-duration:11s;font-size:26px;">🌹</div>
-<div class="petal" style="left:22%;animation-duration:14s;font-size:20px;">💗</div>
-<div class="petal" style="left:41%;animation-duration:10s;font-size:24px;">🌸</div>
-<div class="petal" style="left:58%;animation-duration:15s;font-size:22px;">🌹</div>
-<div class="petal" style="left:75%;animation-duration:12s;font-size:20px;">💞</div>
-<div class="petal" style="left:90%;animation-duration:13s;font-size:26px;">🌸</div>
+<div class="heart" style="left:5%;animation-duration:9s;">❤️</div>
+<div class="heart" style="left:20%;animation-duration:12s;">💗</div>
+<div class="heart" style="left:38%;animation-duration:8s;">💕</div>
+<div class="heart" style="left:55%;animation-duration:13s;">💖</div>
+<div class="heart" style="left:72%;animation-duration:10s;">❤️</div>
+<div class="heart" style="left:88%;animation-duration:11s;">💗</div>
 """, unsafe_allow_html=True)
 
-
-# =====================================================
-#  PETAL BURST
-# =====================================================
-def petal_burst():
+# ================= CONFETTI =================
+def confetti_burst():
     st.components.v1.html("""
-<canvas id="c" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999999;"></canvas>
+<canvas id="confetti" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999999;"></canvas>
 <script>
-const cv=document.getElementById("c"),ctx=cv.getContext("2d");
-cv.width=innerWidth;cv.height=innerHeight;
-const cols=["#ff6b9a","#ff9fba","#ffd3df","#e0457b","#ffffff","#f8bbd0"];
-let p=[];
-for(let i=0;i<220;i++)p.push({x:Math.random()*cv.width,y:-20-Math.random()*300,s:Math.random()*9+4,v:Math.random()*3+2,r:Math.random()*360,d:(Math.random()-.5)*2,c:cols[Math.floor(Math.random()*cols.length)]});
-let t=0;
-function a(){ctx.clearRect(0,0,cv.width,cv.height);
-p.forEach(q=>{q.y+=q.v;q.x+=q.d+Math.sin((q.y+t)/40);q.r+=3;
-ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.r*Math.PI/180);ctx.fillStyle=q.c;
-ctx.beginPath();ctx.ellipse(0,0,q.s,q.s/2,0,0,Math.PI*2);ctx.fill();ctx.restore();});
-t++; if(t<600) requestAnimationFrame(a); else ctx.clearRect(0,0,cv.width,cv.height);}
-a();
+const canvas=document.getElementById("confetti");const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+let pieces=[];
+for(let i=0;i<250;i++){pieces.push({x:Math.random()*canvas.width,y:-20,size:Math.random()*10+4,speed:Math.random()*5+3,rotation:Math.random()*360,color:`hsl(${Math.random()*360},100%,70%)`});}
+function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);pieces.forEach(p=>{p.y+=p.speed;p.rotation+=5;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();});requestAnimationFrame(animate);}
+animate();
 </script>
 """, height=0)
 
-
-# =====================================================
-#  HERO
-# =====================================================
+# ================= HERO =================
 st.markdown(f"""
-<div class="hero-title">For {her_name}</div>
-<div class="hero-sub">All this time with you, and I would choose every day again.</div>
-""", unsafe_allow_html=True)
-
-c1, c2, c3 = st.columns([1, 2, 1])
-with c2:
-    if st.button("🌹 Begin Our Story 🌹"):
-        st.balloons()
-        petal_burst()
-        st.success(f"Welcome, {her_name}. This whole place is yours. ❤️")
-
-# =====================================================
-#  INTRO
-# =====================================================
-st.markdown(f"""
-<div class="glass">
-<div class="prose">
-{her_name}, I could have sent you a message. Instead I built you a small world,
-because that's what you are to me, a whole world.<br><br>
-Every poem, picture and song on this page is a piece of how I feel about you.
-Take your time. Come back whenever you want to remember how loved you are.
-</div>
+<div style="padding-top:30px;">
+<div class="hero-title">For You, {her_name} 💗</div>
+<div class="hero-subtitle">A little universe I made just for you, my love ❤️</div>
 </div>
 """, unsafe_allow_html=True)
 
-# =====================================================
-#  MUSIC
-# =====================================================
-st.markdown('<div class="section-title">Our Song</div>', unsafe_allow_html=True)
+if st.button("✨ Begin Our Story ✨"):
+    st.balloons()
+    confetti_burst()
+    st.success(f"Welcome, {her_name} ❤️ This whole place is yours.")
+
+# ================= INTRO =================
+st.markdown(f"""
+<div class="glass-card">
+<h2 style="color:white;text-align:center;font-family:'Dancing Script',cursive;font-size:42px;">To My Love, My Favorite Person 💗</h2>
+<p style="color:white;text-align:center;font-size:19px;line-height:1.9;">
+{her_name}, I could have sent you a simple message. Instead I built you a little world, because that's what you are to me — a whole world.<br><br>
+Every poem, picture and song here is a piece of how I feel about you. Come back to it whenever you want to remember how loved you are. ❤️
+</p>
+</div>
+""", unsafe_allow_html=True)
+
+# ================= MUSIC (autoplay) =================
+st.markdown('<div class="section-title">🎵 Our Little Soundtrack</div>', unsafe_allow_html=True)
 if music_file:
-    st.markdown('<div class="glass"><div class="prose">Press play, and let this one be for us. 🎶</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="glass-card"><p style="color:white;text-align:center;font-size:19px;">🎶 Playing our song for you...</p></div>', unsafe_allow_html=True)
     with open(music_file, "rb") as audio:
         st.audio(audio.read(), format="audio/mpeg", autoplay=True)
 else:
-    st.info("Put your song in `assets/music/` (mp3, wav, m4a...)")
+    st.info("Put your music file in `assets/music/`")
 
-# =====================================================
-#  HOW SHE CAME INTO MY LIFE
-# =====================================================
-st.markdown('<div class="section-title">How You Came Into My Life</div>', unsafe_allow_html=True)
+# ================= HOW YOU CAME =================
+st.markdown('<div class="section-title">🌹 How You Came Into My Life</div>', unsafe_allow_html=True)
 st.markdown(f"""
-<div class="glass">
-<div class="prose">
+<div class="glass-card">
+<p style="color:white;text-align:center;font-size:19px;line-height:1.9;">
 I wasn't looking for anything the day you appeared.<br>
-My life was quiet, ordinary, and fine, until you.<br><br>
-You didn't arrive with thunder. You arrived like morning light,
-slowly, softly, and then suddenly it was everywhere,
-and I couldn't imagine the room without it.<br><br>
-Somewhere between your first smile and your first "good night,"
-I stopped being someone who had a heart
-and became someone whose heart had a home. And that home was you.<br><br>
-Believe me, after meeting you I don't like to talk to anyone.
-Even when there are a lot of people around, my heart only wants you, jan.
-{her_name} ❤️
-</div>
+My life was quiet, ordinary, and fine — until you.<br><br>
+You didn't arrive with thunder. You arrived like morning light — slowly, softly — and then suddenly it was everywhere, and I couldn't imagine the room without it.<br><br>
+Somewhere between your first smile and your first "good night," I stopped being someone who had a heart, and became someone whose heart had a home. And that home was you.<br><br>
+Believe me, after meeting you I don't like to talk to anyone. Even when there are a lot of people around, my heart only wants you, jan. ❤️
+</p>
 </div>
 """, unsafe_allow_html=True)
 
-# =====================================================
-#  POEMS
-# =====================================================
-st.markdown('<div class="section-title">Poems For You</div>', unsafe_allow_html=True)
+# ================= POEMS =================
+st.markdown('<div class="section-title">📜 Poems For You</div>', unsafe_allow_html=True)
 
 poems = [
     ("Before You", """Before you, my days were pages left unwritten,
@@ -283,45 +184,44 @@ with nothing left to hide."""),
 ]
 
 for title, text in poems:
-    st.markdown(f'<div class="glass"><div class="poem-title">{title}</div><div class="poem">{text}</div></div>', unsafe_allow_html=True)
+    st.markdown(f"""
+<div class="glass-card">
+<h2 style="color:white;text-align:center;font-family:'Dancing Script',cursive;font-size:38px;">{title}</h2>
+<div class="poem-text">{text}</div>
+</div>
+""", unsafe_allow_html=True)
 
-# =====================================================
-#  PHOTOS
-# =====================================================
-st.markdown('<div class="section-title">Our Memories</div>', unsafe_allow_html=True)
+# ================= PHOTOS =================
+st.markdown('<div class="section-title">📸 Our Memories</div>', unsafe_allow_html=True)
 if photos:
     for i in range(0, len(photos), 3):
-        row = photos[i:i + 3]
+        row = photos[i:i+3]
         cols = st.columns(len(row))
-        for j, (col, photo) in enumerate(zip(cols, row)):
+        for col, photo in zip(cols, row):
             with col:
-                st.image(str(photo), use_container_width=True)
-                st.markdown(f'<div class="caption">Memory {i + j + 1} 🤍</div>', unsafe_allow_html=True)
+                st.image(str(photo), width=320)
+                st.markdown(f'<div class="memory-caption">Memory #{photos.index(photo)+1} ❤️</div>', unsafe_allow_html=True)
 else:
     st.info("Add your pictures to `assets/photos/`")
 
-# =====================================================
-#  VIDEOS
-# =====================================================
-st.markdown('<div class="section-title">Us, In Motion</div>', unsafe_allow_html=True)
+# ================= VIDEOS (muted) =================
+st.markdown('<div class="section-title">🎥 Our Memories In Motion</div>', unsafe_allow_html=True)
 if videos:
     for video in videos:
-        a, b, c = st.columns([1, 2, 1])
-        with b:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
             st.video(str(video), muted=True)
 else:
     st.info("Add your videos to `assets/videos/`")
 
-# =====================================================
-#  LETTER
-# =====================================================
-st.markdown('<div class="section-title">A Letter For You</div>', unsafe_allow_html=True)
+# ================= LETTER =================
+st.markdown('<div class="section-title">💌 A Letter For You</div>', unsafe_allow_html=True)
 
 letter_text = f"""My dearest {her_name},
 
-I have tried to write this letter many times, and every time the words feel too small.
+I don't think words will ever be enough to explain how much you mean to me.
 
-When you stepped into my life, without trying you changed everything. You taught me what it means to be understood without explaining, to be held without being touched, and to be loved on my worst days as much as my best.
+When you stepped into my life, without even trying you changed everything. You taught me what it means to be understood without explaining, to be held without being touched, and to be loved on my worst days as much as my best.
 
 With you, silence is comfortable, laughter comes easily, and even ordinary days feel like something worth keeping. You are my peace after a long day and my favorite reason to smile.
 
@@ -334,19 +234,16 @@ I don't know what the future holds, but I know I want you in every part of it.
 Always and forever yours,
 {your_name} ❤️"""
 
-if st.button("💌 Open My Heart"):
-    holder = st.empty()
-    shown = ""
-    for ch in letter_text:
-        shown += ch
-        holder.markdown(f'<div class="glass"><div class="letter">{shown}▌</div></div>', unsafe_allow_html=True)
+if st.button("✨ Open My Heart"):
+    placeholder = st.empty()
+    displayed = ""
+    for char in letter_text:
+        displayed += char
+        placeholder.markdown(f'<div class="glass-card"><div class="letter">{displayed}▌</div></div>', unsafe_allow_html=True)
         time.sleep(0.012)
-    holder.markdown(f'<div class="glass"><div class="letter">{shown}</div></div>', unsafe_allow_html=True)
 
-# =====================================================
-#  REASONS
-# =====================================================
-st.markdown('<div class="section-title">Why I Love You</div>', unsafe_allow_html=True)
+# ================= REASONS =================
+st.markdown('<div class="section-title">❤️ Why I Love You</div>', unsafe_allow_html=True)
 reasons = [
     "Because you make me feel at home, no matter where we are or how far apart we are. You are the only person close to my heart.",
     "Because your smile can fix my whole day in a second.",
@@ -359,71 +256,60 @@ reasons = [
     "Because you are my best friend, my love, and my peace.",
     "Because I can't picture my life without you in it.",
 ]
-for n, r in enumerate(reasons, 1):
-    st.markdown(f'<div class="glass"><div class="reason"><i>{n}</i>{r}</div></div>', unsafe_allow_html=True)
+for n, reason in enumerate(reasons, 1):
+    st.markdown(f'<div class="glass-card"><h2 style="color:white;font-family:\'Dancing Script\',cursive;font-size:32px;">{n}. {reason}</h2></div>', unsafe_allow_html=True)
 
-# =====================================================
-#  PROMISES
-# =====================================================
-st.markdown('<div class="section-title">My Promises</div>', unsafe_allow_html=True)
+# ================= PROMISES =================
+st.markdown('<div class="section-title">🤍 My Promises</div>', unsafe_allow_html=True)
 st.markdown("""
-<div class="glass">
-<div class="poem">I promise to choose you on easy days and on hard ones.
-I promise to listen, to learn, and to grow with you.
-I promise to make you laugh when the world feels heavy.
-I promise to hold your hand, in this life and in every one after.</div>
+<div class="glass-card">
+<p style="color:white;text-align:center;font-size:21px;line-height:2;">
+I promise to choose you on easy days and on hard ones.<br>
+I promise to listen, to learn, and to grow with you.<br>
+I promise to make you laugh when the world feels heavy.<br>
+I promise to hold your hand, in this life and in every one after. ❤️
+</p>
 </div>
 """, unsafe_allow_html=True)
 
-# =====================================================
-#  SECRET
-# =====================================================
-st.markdown('<div class="section-title">Something I Hid For You</div>', unsafe_allow_html=True)
-st.markdown('<div class="caption">Only you know the words. Say them to open it.</div>', unsafe_allow_html=True)
-
-password = st.text_input("🔐 Enter the secret words", type="password", placeholder="Three little words, and your name...")
+# ================= SECRET =================
+st.markdown('<div class="section-title">🔐 Something I Hid For You</div>', unsafe_allow_html=True)
+password = st.text_input("💗 Enter the secret words", type="password", placeholder="Only you know this...")
 if password:
-    if " ".join(password.lower().split()) == secret_phrase:
-        petal_burst()
+    if " ".join(password.lower().split()) == "i love u rein":
+        confetti_burst()
         st.markdown(f"""
-<div class="glass">
-<div class="poem-title" style="font-size:64px;">You found it, {her_name} 🔓</div>
-<div class="prose">
-You knew the words. Of course you did.<br><br>
-The truth is, the real secret was never hidden:
-I love you more than any page, poem or song could ever say.
-</div>
+<div class="glass-card">
+<h1 style="font-family:'Dancing Script',cursive;color:white;text-align:center;font-size:60px;">🔓 You Found It ❤️</h1>
+<p style="color:white;text-align:center;font-size:20px;line-height:1.9;">
+You knew the words, {her_name}. Of course you did.<br><br>
+But honestly, the real secret is that no website, no poem, and no song could ever fully explain what you mean to me. ❤️
+</p>
 </div>
 """, unsafe_allow_html=True)
         if secret_videos:
             for vid in secret_videos:
-                a, b, c = st.columns([1, 2, 1])
-                with b:
-                    st.markdown('<div class="caption" style="font-size:18px;">One more thing, just for you... 💞</div>', unsafe_allow_html=True)
-                    st.video(str(vid))
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col2:
+                    st.markdown('<p style="color:white;text-align:center;font-size:18px;">One more thing... 💞</p>', unsafe_allow_html=True)
+                    st.video(str(vid))  # unmuted by default
         else:
             st.info("Put your secret videos in `assets/secret/`")
     else:
-        st.warning("Hmm... that's not it, my love. Try again 😉")
+        st.warning("Hmm... that's not the secret words 😏")
 
-# =====================================================
-#  FINAL
-# =====================================================
-st.markdown('<div class="section-title">One Last Thing</div>', unsafe_allow_html=True)
-c1, c2, c3 = st.columns([1, 2, 1])
-with c2:
-    final_click = st.button("💗 Open My Final Surprise 💗")
-if final_click:
+# ================= FINAL =================
+st.markdown('<div class="section-title">🎁 One Last Thing...</div>', unsafe_allow_html=True)
+if st.button("💗 Open My Final Surprise 💗"):
     st.balloons()
-    petal_burst()
+    confetti_burst()
     st.markdown(f"""
-<div class="final">
-<h1>{her_name}</h1>
-<p>I love you more than words can hold, more than time can count.</p>
-<p>So much time has passed, and my heart still falls for you every single day and every second.
-Whatever comes next, I want to face it beside you.</p>
+<div class="final-message">
+<h1>{her_name} ❤️</h1>
+<p>I LOVE YOU SO MUCH, more than everything in this world.</p>
+<p>So much time has passed, and my heart still falls for you every single day and every second. Whatever comes next, I want to face it beside you.</p>
 <p>Thank you for being my love, my light, and my home.</p>
-<h1>I love you so much, and thank you so much for everything, {her_name} ❤️</h1>
+<h1>I love you, my {her_name} ❤️</h1>
 <p>Forever yours,<br>{your_name} 💌</p>
 </div>
 """, unsafe_allow_html=True)
