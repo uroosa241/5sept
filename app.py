@@ -8,7 +8,6 @@ from pathlib import Path
 # =====================================================
 her_name = "Rein"
 your_name = "Uroosa Khan"                 # <- put your name here
-together_since = date(2025)      # <- the day your story began (approx is fine)
 secret_phrase = "I love u rein"         # secret code (not case sensitive)
 
 st.set_page_config(page_title="For Rein 🌹", page_icon="🌹", layout="wide", initial_sidebar_state="collapsed")
