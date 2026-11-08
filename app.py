@@ -1,14 +1,13 @@
 import streamlit as st
 import time
-from datetime import date
 from pathlib import Path
 
 # =====================================================
 #  EDIT THESE
 # =====================================================
 her_name = "Rein"
-your_name = "Uroosa Khan"                 # <- put your name here
-secret_phrase = "I love u rein"         # secret code (not case sensitive)
+your_name = "Uroosa Khan"
+secret_phrase = "i love u rein"   # keep this all lowercase (typing is not case sensitive)
 
 st.set_page_config(page_title="For Rein 🌹", page_icon="🌹", layout="wide", initial_sidebar_state="collapsed")
 
@@ -33,8 +32,6 @@ videos = list_real_files(VIDEO_DIR, {".mp4", ".mov", ".webm", ".m4v"})
 secret_videos = list_real_files(SECRET_DIR, {".mp4", ".mov", ".webm", ".m4v"})
 music_files = list_real_files(MUSIC_DIR, {".mp3", ".mpeg", ".wav", ".m4a", ".ogg"})
 music_file = music_files[0] if music_files else None
-
-days_together = (date.today() - together_since).days
 
 # =====================================================
 #  STYLE
@@ -68,16 +65,6 @@ html, body, [class*="css"], .stApp { font-family: 'Jost', sans-serif; }
   text-align: center; color: #f6c6d4; font-size: clamp(20px, 2.6vw, 28px);
   margin: 6px 0 30px 0;
 }
-.counter {
-  display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 10px 0 30px;
-}
-.counter div {
-  border: 1px solid rgba(255,190,210,.35); border-radius: 18px;
-  padding: 14px 26px; text-align: center; color: #ffe9ef;
-  background: rgba(255,255,255,.05);
-}
-.counter b { display:block; font-family:'Cormorant Garamond',serif; font-size: 40px; font-weight: 600; }
-.counter span { font-size: 14px; color: #f0b5c7; }
 
 /* Sections */
 .section-title {
@@ -130,7 +117,7 @@ video { border-radius: 18px !important; box-shadow: 0 14px 34px rgba(0,0,0,.45);
 
 /* Final */
 .final { text-align: center; color: #ffe9ef; padding: 50px 10px; }
-.final h1 { font-family: 'Great Vibes', cursive; font-size: clamp(60px, 9vw, 110px); text-shadow: 0 0 30px rgba(255,100,150,.6); }
+.final h1 { font-family: 'Great Vibes', cursive; font-size: clamp(50px, 8vw, 90px); text-shadow: 0 0 30px rgba(255,100,150,.6); }
 .final p { font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.8; }
 
 /* Floating petals */
@@ -153,7 +140,7 @@ video { border-radius: 18px !important; box-shadow: 0 14px 34px rgba(0,0,0,.45);
 
 
 # =====================================================
-#  CONFETTI / PETAL BURST
+#  PETAL BURST
 # =====================================================
 def petal_burst():
     st.components.v1.html("""
@@ -180,12 +167,7 @@ a();
 # =====================================================
 st.markdown(f"""
 <div class="hero-title">For {her_name}</div>
-<div class="hero-sub">Two years of you, and I would choose every day again.</div>
-<div class="counter">
-  <div><b>{days_together:,}</b><span>days with you</span></div>
-  <div><b>{days_together // 30:,}</b><span>months of loving you</span></div>
-  <div><b>1</b><span>heart that is yours</span></div>
-</div>
+<div class="hero-sub">All this time with you, and I would choose every day again.</div>
 """, unsafe_allow_html=True)
 
 c1, c2, c3 = st.columns([1, 2, 1])
@@ -234,7 +216,10 @@ slowly, softly, and then suddenly it was everywhere,
 and I couldn't imagine the room without it.<br><br>
 Somewhere between your first smile and your first "good night,"
 I stopped being someone who had a heart
-and became someone whose heart had a home. And that home was you,Believe me after meeting You I dont like to talk to anyone even there are alot of people but my heart only wants u jan  {her_name}.
+and became someone whose heart had a home. And that home was you.<br><br>
+Believe me, after meeting you I don't like to talk to anyone.
+Even when there are a lot of people around, my heart only wants you, jan.
+{her_name} ❤️
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -267,15 +252,15 @@ turns gently back to me."""),
 
     ("1.5 Years", """1.5 years of mornings made brighter,
 1.5 years of storms we walked through,
-two years of learning the shape of a soul
-and finding it fits with mine like true.
+all this time learning the shape of a soul
+and finding it fits with mine, so true.
 
 If love is a garden, then you are the spring,
 the sun, the rain, and the seed.
 I'd spend a hundred lifetimes more
 just being close to you, indeed."""),
 
-    ("Your heart", """There is a universe in the way you look at me,
+    ("Your Heart", """There is a universe in the way you look at me,
 a calm I never found in any other sea.
 When you smile, the stars forget to shine,
 because they know the brightest light is thine.
@@ -292,7 +277,8 @@ I promise you I'll stand.
 
 Through every season, every storm,
 through every changing tide,
-{her_name}, I will love you still and Thankyou so much for loving me jan,
+{her_name}, I will love you still,
+and thank you so much for loving me, jan,
 with nothing left to hide."""),
 ]
 
@@ -335,7 +321,7 @@ letter_text = f"""My dearest {her_name},
 
 I have tried to write this letter many times, and every time the words feel too small.
 
-A year ago you stepped into my life, and without trying you changed everything. You taught me what it means to be understood without explaining, to be held without being touched, and to be loved on my worst days as much as my best.
+When you stepped into my life, without trying you changed everything. You taught me what it means to be understood without explaining, to be held without being touched, and to be loved on my worst days as much as my best.
 
 With you, silence is comfortable, laughter comes easily, and even ordinary days feel like something worth keeping. You are my peace after a long day and my favorite reason to smile.
 
@@ -362,14 +348,14 @@ if st.button("💌 Open My Heart"):
 # =====================================================
 st.markdown('<div class="section-title">Why I Love You</div>', unsafe_allow_html=True)
 reasons = [
-    "Because you make me feel at home, no matter where we are or how far you are distanced You are the only person close to my heart.",
+    "Because you make me feel at home, no matter where we are or how far apart we are. You are the only person close to my heart.",
     "Because your smile can fix my whole day in a second.",
     "Because you listen, truly listen, with your whole heart.",
     "Because you believe in me even when I forget to believe in myself.",
     "Because you are gentle and strong at the same time.",
     "Because you turned ordinary moments into my favorite memories.",
     "Because with you, I am the best version of myself.",
-    "Because after two years, my heart still skips when you say my name.",
+    "Because even after all this time, my heart still skips when you say my name.",
     "Because you are my best friend, my love, and my peace.",
     "Because I can't picture my life without you in it.",
 ]
@@ -434,10 +420,10 @@ if final_click:
 <div class="final">
 <h1>{her_name}</h1>
 <p>I love you more than words can hold, more than time can count.</p>
-<p>A year have passed, and my heart still falls for you every single day and every second.
+<p>So much time has passed, and my heart still falls for you every single day and every second.
 Whatever comes next, I want to face it beside you.</p>
 <p>Thank you for being my love, my light, and my home.</p>
-<h1>I love you so much and thanku so much for everything , {her_name} ❤️</h1>
+<h1>I love you so much, and thank you so much for everything, {her_name} ❤️</h1>
 <p>Forever yours,<br>{your_name} 💌</p>
 </div>
 """, unsafe_allow_html=True)
