@@ -66,17 +66,36 @@ video { border-radius:20px !important; box-shadow:0 12px 30px rgba(0,0,0,.25); m
 <div class="heart" style="left:88%;animation-duration:11s;">💗</div>
 """, unsafe_allow_html=True)
 
-# ================= CONFETTI =================
+# ================= CONFETTI + BALLOONS =================
 def confetti_burst():
     st.components.v1.html("""
-<canvas id="confetti" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999999;"></canvas>
 <script>
-const canvas=document.getElementById("confetti");const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-let pieces=[];
-for(let i=0;i<250;i++){pieces.push({x:Math.random()*canvas.width,y:-20,size:Math.random()*10+4,speed:Math.random()*5+3,rotation:Math.random()*360,color:`hsl(${Math.random()*360},100%,70%)`});}
-function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);pieces.forEach(p=>{p.y+=p.speed;p.rotation+=5;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();});requestAnimationFrame(animate);}
+(function(){
+const P = window.parent;
+const doc = P.document;
+const old = doc.getElementById("fx-canvas");
+if (old) old.remove();
+const canvas = doc.createElement("canvas");
+canvas.id = "fx-canvas";
+canvas.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999999;";
+doc.body.appendChild(canvas);
+const ctx = canvas.getContext("2d");
+canvas.width = P.innerWidth; canvas.height = P.innerHeight;
+let pieces = [];
+for (let i=0;i<250;i++){pieces.push({x:Math.random()*canvas.width,y:-20-Math.random()*400,size:Math.random()*10+4,speed:Math.random()*5+3,rotation:Math.random()*360,color:`hsl(${Math.random()*360},100%,70%)`});}
+const balloonEmojis = ["🎈","❤️","💗","💖","🎈"];
+let balloons = [];
+for (let i=0;i<28;i++){balloons.push({x:Math.random()*canvas.width,y:canvas.height+60+Math.random()*500,speed:Math.random()*2.5+1.5,size:Math.random()*30+36,sway:Math.random()*2*Math.PI,e:balloonEmojis[Math.floor(Math.random()*balloonEmojis.length)]});}
+let t = 0;
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  pieces.forEach(p=>{p.y+=p.speed;p.rotation+=5;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();});
+  balloons.forEach(b=>{b.y-=b.speed;ctx.font=b.size+"px serif";ctx.fillText(b.e,b.x+Math.sin(t/30+b.sway)*25,b.y);});
+  t++;
+  if (t < 420) { P.requestAnimationFrame(animate); } else { canvas.remove(); }
+}
 animate();
+})();
 </script>
 """, height=0)
 
@@ -88,7 +107,11 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+if "started" not in st.session_state:
+    st.session_state.started = False
+
 if st.button("✨ Begin Our Story ✨"):
+    st.session_state.started = True
     st.balloons()
     confetti_burst()
     st.success(f"Welcome, {her_name} ❤️ This whole place is yours.")
@@ -104,12 +127,14 @@ Every poem, picture and song here is a piece of how I feel about you. Come back 
 </div>
 """, unsafe_allow_html=True)
 
-# ================= MUSIC (autoplay) =================
+# ================= MUSIC =================
 st.markdown('<div class="section-title">🎵 Our Little Soundtrack</div>', unsafe_allow_html=True)
 if music_file:
-    st.markdown('<div class="glass-card"><p style="color:white;text-align:center;font-size:19px;">🎶 Playing our song for you...</p></div>', unsafe_allow_html=True)
+    mime_map = {".mp3": "audio/mpeg", ".mpeg": "audio/mpeg", ".wav": "audio/wav", ".m4a": "audio/mp4", ".ogg": "audio/ogg"}
+    mime = mime_map.get(music_file.suffix.lower(), "audio/mpeg")
+    st.markdown('<div class="glass-card"><p style="color:white;text-align:center;font-size:19px;">🎶 Press play, this one is for us...</p></div>', unsafe_allow_html=True)
     with open(music_file, "rb") as audio:
-        st.audio(audio.read(), format="audio/mpeg", autoplay=True)
+        st.audio(audio.read(), format=mime, autoplay=st.session_state.started)
 else:
     st.info("Put your music file in `assets/music/`")
 
@@ -200,7 +225,6 @@ if photos:
         for col, photo in zip(cols, row):
             with col:
                 st.image(str(photo), width=320)
-                st.markdown(f'<div class="memory-caption">Memory #{photos.index(photo)+1} ❤️</div>', unsafe_allow_html=True)
 else:
     st.info("Add your pictures to `assets/photos/`")
 
