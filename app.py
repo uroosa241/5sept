@@ -43,6 +43,27 @@ def load_photo(path_str):
         with open(path_str, "rb") as f:
             return f.read()
 
+def unique_files(files):
+    """Skip files with exactly the same content (Streamlit crashes on identical videos)."""
+    import hashlib
+    seen, result = set(), []
+    for f in files:
+        h = hashlib.md5()
+        with open(f, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                h.update(chunk)
+        digest = h.hexdigest()
+        if digest not in seen:
+            seen.add(digest)
+            result.append(f)
+    return result
+
+def show_video(path, key, **kwargs):
+    try:
+        st.video(str(path), key=key, **kwargs)
+    except TypeError:
+        st.video(str(path), **kwargs)
+
 @st.cache_data(show_spinner=False)
 def load_bytes(path_str):
     with open(path_str, "rb") as f:
@@ -157,6 +178,8 @@ if music_file:
     mime = mime_map.get(music_file.suffix.lower(), "audio/mpeg")
     st.markdown('<div class="glass-card"><p style="color:white;text-align:center;font-size:19px;">🎶 Press play, this one is for us...</p></div>', unsafe_allow_html=True)
     st.audio(load_bytes(str(music_file)), format=mime, autoplay=st.session_state.started)
+    size_mb = music_file.stat().st_size / (1024 * 1024)
+    st.markdown(f'<div class="memory-caption">🎧 {music_file.name} ({size_mb:.1f} MB)</div>', unsafe_allow_html=True)
 else:
     st.info("Put your music file in `assets/music/`")
 
@@ -253,10 +276,10 @@ else:
 # ================= VIDEOS (muted) =================
 st.markdown('<div class="section-title">🎥 You, In Motion</div>', unsafe_allow_html=True)
 if videos:
-    for video in videos:
+    for vi, video in enumerate(unique_files(videos)):
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.video(str(video), autoplay=True, loop=True, muted=True)
+            show_video(video, f"memory_video_{vi}", autoplay=True, loop=True, muted=True)
 else:
     st.info("Add your videos to `assets/videos/`")
 
@@ -334,11 +357,11 @@ But honestly, the real secret is that no website, no poem, and no song could eve
 </div>
 """, unsafe_allow_html=True)
         if secret_videos:
-            for vid in secret_videos:
+            for si, vid in enumerate(unique_files(secret_videos)):
                 col1, col2, col3 = st.columns([1, 2, 1])
                 with col2:
                     st.markdown('<p style="color:white;text-align:center;font-size:18px;">One more thing... 💞</p>', unsafe_allow_html=True)
-                    st.video(str(vid), autoplay=True)  # plays with sound once she unlocks it
+                    show_video(vid, f"secret_video_{si}", autoplay=True)
         else:
             st.info("Put your secret videos in `assets/secret/`")
     else:
