@@ -25,6 +25,29 @@ music_file = music_files[0] if music_files else None
 
 secret_videos = list_real_files(SECRET_DIR)
 
+@st.cache_data(show_spinner=False)
+def load_photo(path_str):
+    """Shrink big photos once so the page loads fast."""
+    try:
+        from PIL import Image, ImageOps
+        import io
+        img = Image.open(path_str)
+        img = ImageOps.exif_transpose(img)
+        img.thumbnail((900, 900))
+        if img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=82)
+        return buf.getvalue()
+    except Exception:
+        with open(path_str, "rb") as f:
+            return f.read()
+
+@st.cache_data(show_spinner=False)
+def load_bytes(path_str):
+    with open(path_str, "rb") as f:
+        return f.read()
+
 # ================= CSS =================
 st.markdown("""
 <style>
@@ -133,8 +156,7 @@ if music_file:
     mime_map = {".mp3": "audio/mpeg", ".mpeg": "audio/mpeg", ".wav": "audio/wav", ".m4a": "audio/mp4", ".ogg": "audio/ogg"}
     mime = mime_map.get(music_file.suffix.lower(), "audio/mpeg")
     st.markdown('<div class="glass-card"><p style="color:white;text-align:center;font-size:19px;">🎶 Press play, this one is for us...</p></div>', unsafe_allow_html=True)
-    with open(music_file, "rb") as audio:
-        st.audio(audio.read(), format=mime, autoplay=st.session_state.started)
+    st.audio(load_bytes(str(music_file)), format=mime, autoplay=st.session_state.started)
 else:
     st.info("Put your music file in `assets/music/`")
 
@@ -217,24 +239,24 @@ for title, text in poems:
 """, unsafe_allow_html=True)
 
 # ================= PHOTOS =================
-st.markdown('<div class="section-title">📸 Our Memories</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📸 My Favorite View: You</div>', unsafe_allow_html=True)
 if photos:
     for i in range(0, len(photos), 3):
         row = photos[i:i+3]
         cols = st.columns(len(row))
         for col, photo in zip(cols, row):
             with col:
-                st.image(str(photo), width=320)
+                st.image(load_photo(str(photo)), width=320)
 else:
     st.info("Add your pictures to `assets/photos/`")
 
 # ================= VIDEOS (muted) =================
-st.markdown('<div class="section-title">🎥 Our Memories In Motion</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">🎥 You, In Motion</div>', unsafe_allow_html=True)
 if videos:
     for video in videos:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.video(str(video), muted=True)
+            st.video(str(video), autoplay=True, loop=True, muted=True)
 else:
     st.info("Add your videos to `assets/videos/`")
 
@@ -316,7 +338,7 @@ But honestly, the real secret is that no website, no poem, and no song could eve
                 col1, col2, col3 = st.columns([1, 2, 1])
                 with col2:
                     st.markdown('<p style="color:white;text-align:center;font-size:18px;">One more thing... 💞</p>', unsafe_allow_html=True)
-                    st.video(str(vid))  # unmuted by default
+                    st.video(str(vid), autoplay=True)  # plays with sound once she unlocks it
         else:
             st.info("Put your secret videos in `assets/secret/`")
     else:
