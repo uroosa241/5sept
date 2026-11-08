@@ -65,6 +65,25 @@ def show_video(path, key, **kwargs):
         st.video(str(path), **kwargs)
 
 @st.cache_data(show_spinner=False)
+def prepare_music(path_str):
+    """Turn any audio/video file into a real mp3 the browser can play (needs ffmpeg)."""
+    import subprocess, shutil, tempfile, os
+    p = Path(path_str)
+    if shutil.which("ffmpeg"):
+        out = os.path.join(tempfile.gettempdir(), p.stem.replace(" ", "_") + "_converted.mp3")
+        try:
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", path_str, "-vn", "-acodec", "libmp3lame", "-b:a", "192k", out],
+                check=True, capture_output=True, timeout=180,
+            )
+            with open(out, "rb") as f:
+                return f.read(), "audio/mpeg", True
+        except Exception:
+            pass
+    with open(path_str, "rb") as f:
+        return f.read(), "audio/mpeg", False
+
+@st.cache_data(show_spinner=False)
 def load_bytes(path_str):
     with open(path_str, "rb") as f:
         return f.read()
@@ -177,7 +196,8 @@ if music_file:
     mime_map = {".mp3": "audio/mpeg", ".mpeg": "audio/mpeg", ".wav": "audio/wav", ".m4a": "audio/mp4", ".ogg": "audio/ogg"}
     mime = mime_map.get(music_file.suffix.lower(), "audio/mpeg")
     st.markdown('<div class="glass-card"><p style="color:white;text-align:center;font-size:19px;">🎶 Press play, this one is for us...</p></div>', unsafe_allow_html=True)
-    st.audio(load_bytes(str(music_file)), format=mime, autoplay=st.session_state.started)
+    music_bytes, mime, converted = prepare_music(str(music_file))
+    st.audio(music_bytes, format=mime, autoplay=st.session_state.started)
     size_mb = music_file.stat().st_size / (1024 * 1024)
     st.markdown(f'<div class="memory-caption">🎧 {music_file.name} ({size_mb:.1f} MB)</div>', unsafe_allow_html=True)
 else:
